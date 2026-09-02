@@ -7,10 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL, 
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://wsxubdciorngyfpfpbsr.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || 'sb_publishable_sn7weXqkPXe04JdCN4972Q_BaJ6b21Y';
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
+const PORT = process.env.PORT || 5000;
+
+const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 app.post('/api/verify-access', async (req, res) => {
   const { phone, deviceId } = req.body;
@@ -50,7 +52,7 @@ app.post('/api/get-vocab-data', async (req, res) => {
 
   try {
     const promptText = `Provide JSON output for English word: "${wordToGenerate}"`;
-    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
@@ -68,4 +70,4 @@ app.post('/api/get-vocab-data', async (req, res) => {
   }
 });
 
-app.listen(5000, () => console.log('Server running on port 5000'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
